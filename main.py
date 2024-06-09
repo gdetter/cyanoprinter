@@ -10,11 +10,11 @@ import os
 import subprocess
 
 #Adjustable Parameters
-LAYERS = 255
 GRID_SIZE = 1
 LAYER_TIME = 1.5
-#Calculated Values
+ASPECT_RATIO = (7/5)
 
+#Calculated Values
 match GRID_SIZE:
     case 1:
         cell_height = 5120
@@ -51,16 +51,18 @@ TOP_BOTTOM_SPACING = int((5120-(cell_height*GRID_SIZE))/(GRID_SIZE+1)/2)
 LEFT_RIGHT_SPACING = int((9102-(cell_width*GRID_SIZE))/(GRID_SIZE+1)/2)
 
 #Fixed Parameters
-ASPECT_RATIO = 16/9
+SCREEN_ASPECT_RATIO = (16/9)
+LAYERS = 255
 
+#Select Images
 cwd = Path.cwd()
-
-#Select Image
 Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
 imagenames = askopenfilenames(initialdir=cwd, title='Please Select Images') # show an "Open" dialog box and return the path to the selected file
 
+#Calculate how many files we will need to generate
 file_count  = math.ceil(len(imagenames)/(GRID_SIZE**2))
 
+print("Opening Images...")
 image_list = []
 for image in imagenames:
 
@@ -68,7 +70,12 @@ for image in imagenames:
     open_image = cv.imread(image, 0)
     height, width = open_image.shape
 
-    #Crop to aspect ratio
+    #Make image landscape
+    if height > width:
+        open_image = cv.rotate(open_image, cv.ROTATE_CLOCKWISE)
+        height, width = open_image.shape
+
+    #Crop to aspect ratio (centered)
     if (width/height) > (ASPECT_RATIO):
         cropped_width = (ASPECT_RATIO)*height
         spacing = int((width - cropped_width)/2)
@@ -77,7 +84,17 @@ for image in imagenames:
         cropped_height = (1/ASPECT_RATIO)*width
         spacing = int((height - cropped_height)/2)
         open_image = open_image[spacing:(height-spacing), 0:width]
-    
+    height, width = open_image.shape
+
+    #Buffer to screen aspect ratio
+    if(ASPECT_RATIO < SCREEN_ASPECT_RATIO):
+        buffer_size = int(((SCREEN_ASPECT_RATIO*height)-width)/2)
+        open_image = cv.copyMakeBorder(open_image, top = 0, bottom=0, left=buffer_size, right=buffer_size, borderType=cv.BORDER_CONSTANT, value=[255,255,255])
+    else:
+        buffer_size = int(((width/SCREEN_ASPECT_RATIO)-height)/2)
+        print(buffer_size)
+        open_image = cv.copyMakeBorder(open_image, top = buffer_size, bottom=buffer_size, left=0, right=0, borderType=cv.BORDER_CONSTANT, value=[255,255,255])
+
     #Resize to cell size
     open_image = cv.resize(open_image, (cell_width, cell_height), interpolation= cv.INTER_AREA)
 
@@ -91,7 +108,9 @@ black = cv.copyMakeBorder(black, top = TOP_BOTTOM_SPACING, bottom=TOP_BOTTOM_SPA
 for i in range(GRID_SIZE**2 - len(image_list)%(GRID_SIZE**2)):
     image_list.append(black)
 
+
 for c in range(0,file_count):
+    print("Combining Images...")
     combined_list = []
     for i in range(0,(GRID_SIZE**2),GRID_SIZE):
         sub_list = []
@@ -103,6 +122,7 @@ for c in range(0,file_count):
     combined_image = cv.resize(combined_image, (11520, 5120), interpolation=cv.INTER_CUBIC)
     combined_image = cv.flip(combined_image, 0)
     
+    print("Slicing Images...")
     #Create File Structure
     first = Path(imagenames[c*GRID_SIZE**2]).stem 
 
