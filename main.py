@@ -11,7 +11,7 @@ import os
 #Adjustable Parameters
 LAYERS = 255
 GRID_SIZE = 1
-LAYER_TIME = 1
+LAYER_TIME = 1.5
 #Calculated Values
 
 match GRID_SIZE:

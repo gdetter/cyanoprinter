@@ -1,6 +1,7 @@
 *.goo
 *.uvj
 *.zip
+Images/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
