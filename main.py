@@ -7,6 +7,7 @@ from tkinter import Tk     # from tkinter import Tk for Python 3.x
 from tkinter.filedialog import askopenfilenames
 import shutil
 import os
+import subprocess
 
 #Adjustable Parameters
 LAYERS = 255
@@ -187,8 +188,13 @@ for c in range(0,file_count):
     zip_path = Path(shutil.make_archive(stem, 'zip', str(cwd / stem)))
     uvj_path = zip_path.rename(zip_path.with_suffix(".uvj"))
     # uvj_path = uvj_path.rename(cwd / "Output"/ (stem + ".ujv"))
+
     #Make it goo(ey)
-    os.system("./UVtools.AppImage --cmd convert "+uvj_path.name+ " goo")
+    if (os.name == "nt"):
+        subprocess.run("UVTools --cmd convert "+uvj_path.name+" goo")
+        input("Process Done?:")
+    else:
+        os.system("./UVtools.AppImage --cmd convert "+uvj_path.name+ " goo")
 
     Path.unlink(uvj_path)
     shutil.rmtree(cwd / stem)
