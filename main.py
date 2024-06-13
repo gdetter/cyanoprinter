@@ -11,7 +11,7 @@ import subprocess
 
 #Adjustable Parameters
 GRID_SIZE = 1
-LAYER_TIME = 1.5
+LAYER_TIME = 1.3
 ASPECT_RATIO = (7/5)
 
 #Calculated Values
@@ -72,7 +72,7 @@ for image in imagenames:
 
     #Make image landscape
     if height > width:
-        open_image = cv.rotate(open_image, cv.ROTATE_CLOCKWISE)
+        open_image = cv.rotate(open_image, cv.ROTATE_90_CLOCKWISE)
         height, width = open_image.shape
 
     #Crop to aspect ratio (centered)
@@ -92,7 +92,6 @@ for image in imagenames:
         open_image = cv.copyMakeBorder(open_image, top = 0, bottom=0, left=buffer_size, right=buffer_size, borderType=cv.BORDER_CONSTANT, value=[255,255,255])
     else:
         buffer_size = int(((width/SCREEN_ASPECT_RATIO)-height)/2)
-        print(buffer_size)
         open_image = cv.copyMakeBorder(open_image, top = buffer_size, bottom=buffer_size, left=0, right=0, borderType=cv.BORDER_CONSTANT, value=[255,255,255])
 
     #Resize to cell size
