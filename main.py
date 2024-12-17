@@ -11,8 +11,8 @@ import subprocess
 
 #Adjustable Parameters
 GRID_SIZE = 1
-LAYER_TIME = 1.2
-ASPECT_RATIO = (7/5)
+LAYER_TIME = 1.3
+ASPECT_RATIO = (4/3) 
 
 #Calculated Values
 match GRID_SIZE:
